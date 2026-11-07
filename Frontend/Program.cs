@@ -5,7 +5,7 @@ class Program
 {
     static void Main(string[] args)
     {
-        DoublyLinkendList<int> lista = new DoublyLinkendList<int>();
+        DoublyLinkedList<int> list = new DoublyLinkedList<int>();
 
         int opcion;
 
@@ -36,9 +36,9 @@ class Program
                 case 1:
                     Console.Write("Ingrese el número: ");
 
-                    if (int.TryParse(Console.ReadLine(), out int nuevo))
+                    if (int.TryParse(Console.ReadLine(), out int New))
                     {
-                        lista.Add(nuevo);
+                        list.Add(New);
                         Console.WriteLine("Elemento agregado correctamente.");
                     }
                     else
@@ -49,27 +49,27 @@ class Program
 
                 case 2:
                     Console.WriteLine("\nLista hacia adelante:");
-                    lista.ShowForward();
+                    list.ShowNext();
                     break;
 
                 case 3:
                     Console.WriteLine("\nLista hacia atrás:");
-                    lista.ShowBacks();
+                    list.ShowBack();
                     break;
 
                 case 4:
-                    lista.SortDescending();
+                    list.SortDescending();
                     Console.WriteLine("Lista ordenada descendentemente.");
-                    lista.MostrarAdelante();
+                    list.ShowNext();
                     break;
 
                 case 5:
-                    lista.ShowModas();
+                    list.ShowModas();
                     break;
 
                 case 6:
                     Console.WriteLine("\nGráfico :");
-                    lista.ShowGraph();
+                    list.ShowGraph();
                     break;
 
                 case 7:
@@ -77,7 +77,7 @@ class Program
 
                     if (int.TryParse(Console.ReadLine(), out int search))
                     {
-                        if (lista.ItExists(search))
+                        if (list.ItExists(search))
                             Console.WriteLine("El elemento sí existe.");
                         else
                             Console.WriteLine("El elemento no existe.");
@@ -93,7 +93,7 @@ class Program
 
                     if (int.TryParse(Console.ReadLine(), out int eliminate))
                     {
-                        if (lista.RemoveOneOccurrence(eliminate))
+                        if (list.RemoveOneOccurrence(eliminate))
                             Console.WriteLine("Se eliminó una ocurrencia.");
                         else
                             Console.WriteLine("El elemento no existe.");
@@ -109,9 +109,9 @@ class Program
 
                     if (int.TryParse(Console.ReadLine(), out int deleteAll))
                     {
-                        int cantidad = lista.RemoveAllOccurrences(deleteAll);
+                        int amount = list.RemoveAllOccurrences(deleteAll);
 
-                        Console.WriteLine("Cantidad de elementos eliminados: " + cantidad);
+                        Console.WriteLine("Cantidad de elementos eliminados: " + amount);
                     }
                     else
                     {
