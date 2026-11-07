@@ -12,7 +12,7 @@ public class DoublyLinkedList<T> where T : IComparable<T>
     }
 
 
-    public void Ad(T date)
+    public void Add(T date)
     {
         Node<T> New = new Node<T>(date);
 
@@ -31,7 +31,7 @@ public class DoublyLinkedList<T> where T : IComparable<T>
             return;
         }
 
-        if (date.CompareTo(Last.Date) >= 0)
+        if (date.CompareTo(Last!.Date) >= 0)
         {
             New.Forme = Last;
             Last.Next = New;
@@ -248,6 +248,37 @@ public class DoublyLinkedList<T> where T : IComparable<T>
         }
 
         return false;
+    }
+
+    public int RemoveAllOccurrences(T dato)
+    {
+        int eliminated = 0;
+
+        Node<T>? current = First;
+
+        while (current != null)
+        {
+            Node<T>? next = current.Next;
+
+            if (current.Date.CompareTo(dato) == 0)
+            {
+                if (current.Forme != null)
+                    current.Forme.Next = current.Next;
+                else
+                    First = current.Next;
+
+                if (current.Next != null)
+                    current.Next.Forme = current.Forme;
+                else
+                    Last = current.Forme;
+
+                eliminated++;
+            }
+
+            current = next;
+        }
+
+        return eliminated;
     }
 
 }
