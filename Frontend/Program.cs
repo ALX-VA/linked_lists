@@ -5,7 +5,8 @@ class Program
 {
     static void Main(string[] args)
     {
-        DoublyLinkedList<int> list = new DoublyLinkedList<int>();
+        DoublyLinkedList<IComparable> list =
+            new DoublyLinkedList<IComparable>(new DataComparator()); ;
 
         int opcion;
 
@@ -24,28 +25,27 @@ class Program
             Console.WriteLine("0. Salir");
             Console.Write("\nSeleccione una opción: ");
 
-            if (!int.TryParse(Console.ReadLine(), out opcion))
-            {
-                Console.WriteLine("Ingrese una opción válida.");
-                opcion = -1;
-                continue;
-            }
+            int.TryParse(Console.ReadLine(), out opcion);
+            
 
             switch (opcion)
             {
                 case 1:
-                    Console.Write("Ingrese el número: ");
+                    {
+                        IComparable? date = ReadData();
 
-                    if (int.TryParse(Console.ReadLine(), out int New))
-                    {
-                        list.Add(New);
-                        Console.WriteLine("Elemento agregado correctamente.");
+                        if (date != null)
+                        {
+                            list.Add(date);
+                            Console.WriteLine("Dato agregado correctamente.");
+                        }
+                        else
+                        {
+                            Console.WriteLine("No ingresaste ningún dato.");
+                        }
+
+                        break;
                     }
-                    else
-                    {
-                        Console.WriteLine("Debe ingresar un número entero.");
-                    }
-                    break;
 
                 case 2:
                     Console.WriteLine("\nLista hacia adelante:");
@@ -68,59 +68,72 @@ class Program
                     break;
 
                 case 6:
-                    Console.WriteLine("\nGráfico :");
+                    Console.WriteLine("\nGráfico de ocurrencias:");
                     list.ShowGraph();
                     break;
 
                 case 7:
-                    Console.Write("Ingrese el número que desea buscar: ");
+                    {
+                        IComparable? dato = ReadData();
 
-                    if (int.TryParse(Console.ReadLine(), out int search))
-                    {
-                        if (list.ItExists(search))
-                            Console.WriteLine("El elemento sí existe.");
+                        if (dato != null)
+                        {
+                            Console.WriteLine(
+                                list.ItExists(dato)
+                                ? "El dato sí existe."
+                                : "El dato no existe."
+                            );
+                        }
                         else
-                            Console.WriteLine("El elemento no existe.");
+                        {
+                            Console.WriteLine("Dato no válido.");
+                        }
+
+                        break;
                     }
-                    else
-                    {
-                        Console.WriteLine("Debe ingresar un número entero.");
-                    }
-                    break;
 
                 case 8:
-                    Console.Write("Ingrese el número que desea eliminar: ");
+                    {
+                        IComparable? date = ReadData();
 
-                    if (int.TryParse(Console.ReadLine(), out int eliminate))
-                    {
-                        if (list.RemoveOneOccurrence(eliminate))
-                            Console.WriteLine("Se eliminó una ocurrencia.");
+                        if (date != null)
+                        {
+                            if (list.RemoveOneOccurrence(date))
+                                Console.WriteLine("Se eliminó una ocurrencia.");
+                            else
+                                Console.WriteLine("El dato no existe.");
+                        }
                         else
-                            Console.WriteLine("El elemento no existe.");
+                        {
+                            Console.WriteLine("Dato no válido.");
+                        }
+
+                        break;
                     }
-                    else
-                    {
-                        Console.WriteLine("Debe ingresar un número entero.");
-                    }
-                    break;
 
                 case 9:
-                    Console.Write("Ingrese el número que desea eliminar: ");
-
-                    if (int.TryParse(Console.ReadLine(), out int deleteAll))
                     {
-                        int amount = list.RemoveAllOccurrences(deleteAll);
+                        IComparable? date = ReadData();
 
-                        Console.WriteLine("Cantidad de elementos eliminados: " + amount);
+                        if (date != null)
+                        {
+                            int eliminate =
+                                list.RemoveAllOccurrences(date);
+
+                            Console.WriteLine(
+                                $"Se eliminaron {eliminate} ocurrencia(s)."
+                            );
+                        }
+                        else
+                        {
+                            Console.WriteLine("Dato no válido.");
+                        }
+
+                        break;
                     }
-                    else
-                    {
-                        Console.WriteLine("Debe ingresar un número entero.");
-                    }
-                    break;
 
                 case 0:
-                    Console.WriteLine("Programa finalizado.");
+                    Console.WriteLine("Saliendo del programa...");
                     break;
 
                 default:
@@ -129,6 +142,21 @@ class Program
             }
 
         } while (opcion != 0);
+    }
+
+    static IComparable? ReadData()
+    {
+        Console.Write("Ingrese un número o una palabra: ");
+
+        string text = Console.ReadLine()?.Trim() ?? "";
+
+        if (text == "")
+            return null;
+
+        if (int.TryParse(text, out int number))
+            return number;
+
+        return text;
     }
 }
 

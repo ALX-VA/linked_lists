@@ -1,14 +1,20 @@
-﻿namespace Backend;
+﻿using static System.Runtime.InteropServices.JavaScript.JSType;
 
-public class DoublyLinkedList<T> where T : IComparable<T>
+namespace Backend;
+
+public class DoublyLinkedList<T> 
 {
     private Node<T>? First;
     private Node<T>? Last;
 
-    public DoublyLinkedList()
+    private readonly IComparer<T> comparator;
+
+    public DoublyLinkedList(IComparer<T>? comparator = null)
     {
         First = null;
         Last = null;
+
+        this.comparator = comparator ?? Comparer<T>.Default;
     }
 
 
@@ -23,7 +29,7 @@ public class DoublyLinkedList<T> where T : IComparable<T>
             return;
         }
 
-        if (date.CompareTo(First.Date) <= 0)
+        if (comparator.Compare(date, First.Date) <= 0)
         {
             New.Next = First;
             First.Forme = New;
@@ -31,43 +37,43 @@ public class DoublyLinkedList<T> where T : IComparable<T>
             return;
         }
 
-        if (date.CompareTo(Last!.Date) >= 0)
-        {
-            New.Forme = Last;
-            Last.Next = New;
-            Last = New;
-            return;
-        }
-
         Node<T> current = First;
 
-        while (current != null && date.CompareTo(current.Date) > 0)
+        while (current.Next != null &&
+               comparator.Compare(date, current.Next.Date) > 0)
         {
-            current = current.Next!;
+            current = current.Next;
         }
 
-        New.Next = current;
-        New.Forme = current!.Forme;
+        New.Next = current.Next;
+        New.Forme = current;
 
-        current.Forme!.Next = New;
-        current.Forme = New;
+        if (current.Next != null)
+        {
+            current.Next.Forme = New;
+        }
+        else
+        {
+            Last = New;
+        }
+
+        current.Next = New;
     }
 
 
     public void ShowNext()
     {
-        Node<T>? current = First;
-
-        if (current == null)
+        if (First == null)
         {
             Console.WriteLine("The list is empty.");
             return;
         }
 
+        Node<T>? current = First;
+
         while (current != null)
         {
             Console.Write(current.Date + " ");
-
             current = current.Next;
         }
 
@@ -77,18 +83,17 @@ public class DoublyLinkedList<T> where T : IComparable<T>
 
     public void ShowBack()
     {
-        Node<T>? current = Last;
-
-        if (current == null)
+        if (Last == null)
         {
             Console.WriteLine("The list is empty.");
             return;
         }
 
+        Node<T>? current = Last;
+
         while (current != null)
         {
             Console.Write(current.Date + " ");
-
             current = current.Forme;
         }
 
@@ -109,7 +114,7 @@ public class DoublyLinkedList<T> where T : IComparable<T>
 
             while (next != null)
             {
-                if (current.Date.CompareTo(next.Date) < 0)
+                if (comparator.Compare(current.Date, next.Date) < 0)
                 {
                     T temporary = current.Date;
                     current.Date = next.Date;
@@ -133,8 +138,8 @@ public class DoublyLinkedList<T> where T : IComparable<T>
             return;
         }
 
-        int higherfrequency = 0;
         List<T> modas = new List<T>();
+        int highFrequency = 0;
 
         Node<T>? current = First;
 
@@ -145,30 +150,41 @@ public class DoublyLinkedList<T> where T : IComparable<T>
 
             while (search != null)
             {
-                if (current.Date.CompareTo(search.Date) == 0)
+                if (comparator.Compare(current.Date, search.Date) == 0)
                     frequency++;
 
                 search = search.Next;
             }
 
-            if (frequency > higherfrequency)
+            if (frequency > highFrequency)
             {
-                higherfrequency = frequency;
+                highFrequency = frequency;
                 modas.Clear();
                 modas.Add(current.Date);
             }
-            else if (frequency == higherfrequency &&
-                     !modas.Contains(current.Date))
+            else if (frequency == highFrequency)
             {
-                modas.Add(current.Date);
+                bool itexists = false;
+
+                foreach (T moda in modas)
+                {
+                    if (comparator.Compare(moda, current.Date) == 0)
+                    {
+                        itexists = true;
+                        break;
+                    }
+                }
+
+                if (!itexists)
+                    modas.Add(current.Date);
             }
 
             current = current.Next;
         }
 
         Console.WriteLine("Moda(s): " + string.Join(", ", modas));
+        Console.WriteLine("Frecuencia: " + highFrequency);
     }
-
 
 
     public void ShowGraph()
@@ -185,21 +201,33 @@ public class DoublyLinkedList<T> where T : IComparable<T>
 
         while (current != null)
         {
-            if (!processed.Contains(current.Date))
+            bool Alreadyprocessed = false;
+
+            foreach (T date in processed)
+            {
+                if (comparator.Compare(date, current.Date) == 0)
+                {
+                    Alreadyprocessed = true;
+                    break;
+                }
+            }
+
+            if (!Alreadyprocessed)
             {
                 int frequency = 0;
                 Node<T>? search = First;
 
                 while (search != null)
                 {
-                    if (current.Date.CompareTo(search.Date) == 0)
+                    if (comparator.Compare(current.Date, search.Date) == 0)
                         frequency++;
 
                     search = search.Next;
                 }
 
-                Console.WriteLine(current.Date + " " +
-                                  new string('*', frequency));
+                Console.WriteLine(
+                    $"{current.Date} {new string('*', frequency)}"
+                );
 
                 processed.Add(current.Date);
             }
@@ -208,13 +236,13 @@ public class DoublyLinkedList<T> where T : IComparable<T>
         }
     }
 
-    public bool ItExists(T dato)
+    public bool ItExists(T date)
     {
         Node<T>? current = First;
 
         while (current != null)
         {
-            if (current.Date.CompareTo(dato) == 0)
+            if (comparator.Compare(current.Date, date) == 0)
                 return true;
 
             current = current.Next;
@@ -229,7 +257,7 @@ public class DoublyLinkedList<T> where T : IComparable<T>
 
         while (current != null)
         {
-            if (current.Date.CompareTo(dato) == 0)
+            if (comparator.Compare(current.Date, dato) == 0)
             {
                 if (current.Forme != null)
                     current.Forme.Next = current.Next;
@@ -250,7 +278,7 @@ public class DoublyLinkedList<T> where T : IComparable<T>
         return false;
     }
 
-    public int RemoveAllOccurrences(T dato)
+    public int RemoveAllOccurrences(T date)
     {
         int eliminated = 0;
 
@@ -260,7 +288,7 @@ public class DoublyLinkedList<T> where T : IComparable<T>
         {
             Node<T>? next = current.Next;
 
-            if (current.Date.CompareTo(dato) == 0)
+            if (comparator.Compare(current.Date, date) == 0)
             {
                 if (current.Forme != null)
                     current.Forme.Next = current.Next;
